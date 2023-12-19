@@ -13,7 +13,6 @@ int main(int argc, char** argv) {
     std::printf("Rank %d od %d procs\n", rank, nprocs);
 
     MPI_Finalize();
-
 }
 
 //para compilar mpicxx ejemplo01.cpp -o ejemplo01 (-o para el nombre que queremos para la salida)
