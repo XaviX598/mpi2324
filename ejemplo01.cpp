@@ -14,6 +14,3 @@ int main(int argc, char** argv) {
 
     MPI_Finalize();
 }
-
-//para compilar mpicxx ejemplo01.cpp -o ejemplo01 (-o para el nombre que queremos para la salida)
-//ejecutar mpiexec -n 4 ./ejemplo01
