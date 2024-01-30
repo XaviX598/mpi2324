@@ -54,7 +54,6 @@ int main(int argc, char** argv) {
                 int index = i*MATRIX_DIMENSION+j;
                 A[index] = i; // es de 25 por 25 ya que no nos importa lo del relleno
             }
-
         }
 
         for(int i = 0; i<MATRIX_DIMENSION;i++) b[i] = 1;
