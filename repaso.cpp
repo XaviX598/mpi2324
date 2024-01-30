@@ -5,7 +5,7 @@
 #include <ctime>
 #include <algorithm>
 
-#define  DIMENSION 25
+#define  DIMENSION 101
 
 
 std::vector<std::tuple<int, int>> contar(int* tmp, int block_size) {
@@ -27,16 +27,7 @@ std::vector<std::tuple<int, int>> contar(int* tmp, int block_size) {
             resultado.push_back(std::make_tuple(tmp[i], conteo));
         }
     }
-
     return resultado;
-}
-
-double promedio(int* tmp, int block_size){
-    int suma = 0;
-    for(int i=0; i<block_size ; i++){
-        suma = tmp[i] + suma;
-    }
-    return suma/block_size;
 }
 
 int main(int argc, char** argv){
@@ -48,7 +39,7 @@ int main(int argc, char** argv){
     MPI_Comm_size(MPI_COMM_WORLD, &nprocs); //para sacar el numero total de procesos
 
     int block_size;
-    int real_size;
+    int real_size = DIMENSION;
     int padding = 0;
 
     if(DIMENSION%nprocs!=0){
@@ -106,50 +97,41 @@ int main(int argc, char** argv){
                     0, //cual rank es el root
                     MPI_COMM_WORLD  ); //comunicador globa
 
-//        std::printf("rank_%d: ", rank );
-//        for(int i=0; i<allData.size(); i++){
-//            std::printf("%d ", allData[i]);
-//
-//        }
-//
-//        std::vector<std::tuple<int, int>> resultado0 = contar(allData.data(), block_size);
-//
-//        // Imprimir el contenido del resultado con std::printf
-//        std::printf("Contenido del resultado del rank_%d:\n", rank);
-//        for (const auto& tupla : resultado0) {
-//            int elemento = std::get<0>(tupla);
-//            int conteo = std::get<1>(tupla);
-//            std::printf("(%d, %d) ", elemento, conteo);
-//        }
-//        std::printf("\n");
+        std::printf("rank_%d: ", rank );
+        for(int i=0; i<allData.size(); i++){
+            std::printf("%d ", allData[i]);
 
-//        //recibimos resultado
-//        MPI_Gather(MPI_IN_PLACE, 0, MPI_INT, //envio PONEMOS in plaace para indicar que el tiene su propio datos
-//                   allData.data(), allData.size()*2 ,MPI_INT, //RECIBIMOS
-//                   0, MPI_COMM_WORLD);
-//
-//        allData.resize(DIMENSION);
-//
-//        std::vector<std::tuple<int, int>> resultado1 = contar(allData.data(), block_size);
-//        // Imprimir el contenido del resultado con std::printf
-//        std::printf("Contenido de todos\n");
-//        for (const auto& tupla : resultado0) {
-//            int elemento = std::get<0>(tupla);
-//            int conteo = std::get<1>(tupla);
-//            std::printf("(%d, %d) ", elemento, conteo);
-//        }
-//        std::printf("\n");
+        }
+
+        std::vector<std::tuple<int, int>> resultado0 = contar(allData.data(), block_size);
+
+        // Imprimir el contenido del resultado con std::printf
+        std::printf("Contenido del resultado del rank_%d:\n", rank);
+        for (const auto& tupla : resultado0) {
+            int elemento = std::get<0>(tupla);
+            int conteo = std::get<1>(tupla);
+            std::printf("(%d, %d) ", elemento, conteo);
+        }
+        std::printf("\n");
+
+        //recibimos resultado
+        MPI_Gather(MPI_IN_PLACE, 0, MPI_INT, //envio PONEMOS in plaace para indicar que el tiene su propio datos
+                   allData.data(), allData.size()*2 ,MPI_INT, //RECIBIMOS
+                   0, MPI_COMM_WORLD);
+
+        allData.resize(DIMENSION);
+
+        std::vector<std::tuple<int, int>> resultado1 = contar(allData.data(), block_size);
+        // Imprimir el contenido del resultado con std::printf
+        std::printf("Contenido de todos\n");
+        for (const auto& tupla : resultado0) {
+            int elemento = std::get<0>(tupla);
+            int conteo = std::get<1>(tupla);
+            std::printf("(%d, %d) ", elemento, conteo);
+        }
+        std::printf("\n");
 
 
-//----------------------promedio-------------
-        int promedioTotal = 0;
-        double prom = promedio(allData.data(), block_size);
-        std::printf("Promedio rank 0= %f\n", prom);
-        MPI_Reduce(MPI_IN_PLACE, &promedioTotal, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD );
-
-        promedioTotal = promedioTotal + prom;
-
-        std::printf("Promedio total= %d\n", promedioTotal/nprocs);
 
     }else {
 
@@ -158,44 +140,29 @@ int main(int argc, char** argv){
         MPI_Scatter(nullptr,0,MPI_DOUBLE, //datos de envio, aqui va esto ya que estos no van a enviar
                     allData_local.data(), block_size, MPI_INT,
                     0, MPI_COMM_WORLD);
-
-
-
         std::printf("rank_%d: ", rank );
         for(int i=0; i<allData_local.size(); i++){
             std::printf("%d ", allData_local[i]);
 
         }
         std::printf("\n");
-//
-//        std::vector<std::tuple<int, int>> resultado = contar(allData_local.data(), block_size);
-//
-//        // Imprimir el contenido del resultado con std::printf
-//        std::printf("Contenido del resultado del rank_%d:\n", rank);
-//        for (const auto& tupla : resultado) {
-//            int elemento = std::get<0>(tupla);
-//            int conteo = std::get<1>(tupla);
-//            std::printf("(%d, %d) ", elemento, conteo);
-//        }
-//        std::printf("\n");
-//
-//        //enviamos resultado
-//        MPI_Gather(resultado.data(), resultado.size()*2, MPI_INT, //envio
-//                   nullptr, 0 ,MPI_INT, //RECIBIMOS NADA
-//                   0, MPI_COMM_WORLD);
 
+        std::vector<std::tuple<int, int>> resultado = contar(allData_local.data(), block_size);
 
-
-
-//-----------------------------------promedio----------------------------
-        if(rank==nprocs-1){
-            block_size = block_size-padding;
+        // Imprimir el contenido del resultado con std::printf
+        std::printf("Contenido del resultado del rank_%d:\n", rank);
+        for (const auto& tupla : resultado) {
+            int elemento = std::get<0>(tupla);
+            int conteo = std::get<1>(tupla);
+            std::printf("(%d, %d) ", elemento, conteo);
         }
+        std::printf("\n");
 
-        double promedioParcial = promedio(allData_local.data(), block_size);
-        std::printf("RANK_%d: promedio parcial = %f\n", rank, promedioParcial);
+        //enviamos resultado
+        MPI_Gather(resultado.data(), resultado.size()*2, MPI_INT, //envio
+                   nullptr, 0 ,MPI_INT, //RECIBIMOS NADA
+                   0, MPI_COMM_WORLD);
 
-        MPI_Reduce(&promedioParcial, MPI_IN_PLACE, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD );
 
 
     }

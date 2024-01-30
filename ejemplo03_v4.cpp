@@ -6,7 +6,7 @@
 #include <math.h>
 
 //tamaño del vector
-#define MAX_ITEMS 25
+#define MAX_ITEMS 21
 
 int sumar(int*tmp, int n){
     int suma = 0;
@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 
 
     int block_size;
-    int real_size;
+    int real_size =  MAX_ITEMS;
     int padding = 0;
 
     if(MAX_ITEMS%nprocs!=0){
